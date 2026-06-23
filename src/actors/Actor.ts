@@ -33,7 +33,7 @@ export class Actor {
     return this;
   }
 
-  ability<T extends Ability>(abilityClass: { new(...args: unknown[]): T; abilityName: string }): T {
+  ability<T extends Ability>(abilityClass: { abilityName: string }): T {
     const ability = this.abilities.get(abilityClass.abilityName);
     if (!ability) {
       throw new Error(
