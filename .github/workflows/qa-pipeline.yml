@@ -9,7 +9,7 @@ on:
     - cron: '0 6 * * 1-5'   # Lunes a viernes 6am — regression diaria
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   BASE_URL: 'https://reqres.in'
 
 # ─── Quality Gates ─────────────────────────────────────────────────────────────
