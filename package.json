@@ -9,7 +9,7 @@
     "test:regression": "playwright test tests/regression",
     "test:ci": "playwright test --reporter=github,allure-playwright",
     "report": "allure generate reports/allure-results -o reports/allure-report --clean && allure open reports/allure-report",
-    "lint": "eslint src tests --ext .ts",
+    "lint": "eslint src tests",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf reports/allure-results reports/allure-report"
   },
