@@ -4,20 +4,10 @@ import { CallAnApi, type RequestOptions } from '../abilities/CallAnApi';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-/**
- * INTERACTION: Send
- *
- * Sends an HTTP request and stores the response on the Actor.
- *
- * @example
- * await actor.attemptsTo(
- *   Send.a('GET').to('/api/users/1'),
- *   Send.a('POST').to('/api/users').withBody({ name: 'Floriza', job: 'QA Lead' }),
- * );
- */
 export class Send implements Interaction {
   private body: unknown;
   private opts: RequestOptions = {};
+  private _path = '';
 
   private constructor(private readonly method: HttpMethod) {}
 
@@ -29,8 +19,7 @@ export class Send implements Interaction {
   static DELETE(): Send { return new Send('DELETE'); }
 
   to(path: string): this {
-    this.opts = { ...this.opts };
-    (this as unknown as { _path: string })._path = path;
+    this._path = path;
     return this;
   }
 
@@ -50,17 +39,17 @@ export class Send implements Interaction {
   }
 
   async performAs(actor: Actor): Promise<void> {
-    const api = actor.ability(CallAnApi);
-    const path = (this as unknown as { _path: string })._path;
+    const api = actor.ability<CallAnApi>(CallAnApi);
     const options: RequestOptions = { ...this.opts, data: this.body };
 
     let response;
     switch (this.method) {
-      case 'GET':    response = await api.get(path, options);    break;
-      case 'POST':   response = await api.post(path, options);   break;
-      case 'PUT':    response = await api.put(path, options);    break;
-      case 'PATCH':  response = await api.patch(path, options);  break;
-      case 'DELETE': response = await api.delete(path, options); break;
+      case 'GET':    response = await api.get(this._path, options);    break;
+      case 'POST':   response = await api.post(this._path, options);   break;
+      case 'PUT':    response = await api.put(this._path, options);    break;
+      case 'PATCH':  response = await api.patch(this._path, options);  break;
+      case 'DELETE': response = await api.delete(this._path, options); break;
+      default: throw new Error(`Unsupported method: ${this.method}`);
     }
 
     const headers: Record<string, string> = {};
