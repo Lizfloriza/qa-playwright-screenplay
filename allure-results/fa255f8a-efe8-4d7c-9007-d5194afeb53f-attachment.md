@@ -1,0 +1,116 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: regression/critical-path.spec.ts >> Critical Path — User Lifecycle >> should create a post and return 201
+- Location: tests/regression/critical-path.spec.ts:77:11
+
+# Error details
+
+```
+Error: expect(received).toBe(expected) // Object.is equality
+
+Expected: 201
+Received: 404
+```
+
+# Test source
+
+```ts
+  1  | import { test, expect } from '../../src/utils/fixtures';
+  2  | import { ManageUsers } from '../../src/tasks/ManageUsers';
+  3  | import { Authenticate } from '../../src/tasks/Authenticate';
+  4  | import { TheLastResponse } from '../../src/questions/TheLastResponse';
+  5  | import { TestDataBuilder } from '../../src/utils/TestDataBuilder';
+  6  | import { Send } from '../../src/interactions/Send';
+  7  | 
+  8  | /**
+  9  |  * REGRESSION SUITE — Critical Path
+  10 |  *
+  11 |  * Covers the full user lifecycle:
+  12 |  * Register → Login → Create → Read → Update → Delete
+  13 |  *
+  14 |  * This suite runs on every PR and merge to main.
+  15 |  * Quality gate: 100% pass rate required (zero tolerance).
+  16 |  */
+  17 | 
+  18 | test.describe('Critical Path — User Lifecycle', () => {
+  19 | 
+  20 |   test('full user lifecycle: create → read → update → delete', async ({ qaActor }) => {
+  21 |     // Step 1: Create
+  22 |     const newUser = TestDataBuilder.user()
+  23 |       .withName('E2E Test User')
+  24 |       .withJob('QA Automation')
+  25 |       .build();
+  26 | 
+  27 |     await qaActor.attemptsTo(ManageUsers.create(newUser));
+  28 |     expect(await qaActor.asks(TheLastResponse.status())).toBe(201);
+  29 |     const createdId = await qaActor.asks(TheLastResponse.bodyField<string>('id'));
+  30 |     expect(createdId).toBeTruthy();
+  31 | 
+  32 |     // Step 2: Read (using a known stable ID from reqres.in)
+  33 |     await qaActor.attemptsTo(ManageUsers.getById(1));
+  34 |     expect(await qaActor.asks(TheLastResponse.status())).toBe(200);
+  35 |     const userId = await qaActor.asks(TheLastResponse.bodyField<number>('data.id'));
+  36 |     expect(userId).toBe(1);
+  37 | 
+  38 |     // Step 3: Update
+  39 |     await qaActor.attemptsTo(ManageUsers.update(1, { name: 'Updated Name', job: 'QA Lead' }));
+  40 |     expect(await qaActor.asks(TheLastResponse.status())).toBe(200);
+  41 |     expect(await qaActor.asks(TheLastResponse.bodyField<string>('name'))).toBe('Updated Name');
+  42 | 
+  43 |     // Step 4: Delete
+  44 |     await qaActor.attemptsTo(ManageUsers.delete(1));
+  45 |     expect(await qaActor.asks(TheLastResponse.status())).toBe(204);
+  46 |   });
+  47 | 
+  48 |   test('authentication: register → login → access protected resource', async ({ qaActor }) => {
+  49 |     const creds = TestDataBuilder.validCredentials();
+  50 | 
+  51 |     // Step 1: Register
+  52 |     await qaActor.attemptsTo(Authenticate.register(creds));
+  53 |     expect(await qaActor.asks(TheLastResponse.status())).toBe(200);
+  54 |     const registrationToken = await qaActor.asks(TheLastResponse.bodyField<string>('token'));
+  55 |     expect(registrationToken).toBeTruthy();
+  56 | 
+  57 |     // Step 2: Login
+  58 |     await qaActor.attemptsTo(Authenticate.as(creds));
+  59 |     expect(await qaActor.asks(TheLastResponse.status())).toBe(200);
+  60 |     const loginToken = await qaActor.asks(TheLastResponse.bodyField<string>('token'));
+  61 |     expect(loginToken).toBeTruthy();
+  62 |   });
+  63 | 
+  64 |   test('pagination is consistent across pages', async ({ qaActor }) => {
+  65 |     await qaActor.attemptsTo(ManageUsers.getPage(1));
+  66 |     expect(await qaActor.asks(TheLastResponse.status())).toBe(200);
+  67 |     const totalFromPage1 = await qaActor.asks(TheLastResponse.bodyField<number>('total'));
+  68 | 
+  69 |     await qaActor.attemptsTo(ManageUsers.getPage(2));
+  70 |     expect(await qaActor.asks(TheLastResponse.status())).toBe(200);
+  71 |     const totalFromPage2 = await qaActor.asks(TheLastResponse.bodyField<number>('total'));
+  72 | 
+  73 |     // Total users must be consistent across pages
+  74 |     expect(totalFromPage1).toBe(totalFromPage2);
+  75 |   });
+  76 | 
+  77 |       test('should create a post and return 201', async ({ qaActor }) => {
+  78 |         await qaActor.attemptsTo(
+  79 |             Send.POST().to('/posts').withBody({ title: 'Test Post', body: 'Content', userId: 1 }),
+  80 |         );
+> 81 |         expect(await qaActor.asks(TheLastResponse.status())).toBe(201);
+     |                                                              ^ Error: expect(received).toBe(expected) // Object.is equality
+  82 |       });
+  83 | 
+  84 |   test('API returns correct content-type header', async ({ qaActor }) => {
+  85 |     await qaActor.attemptsTo(ManageUsers.getPage(1));
+  86 |     const contentType = await qaActor.asks(TheLastResponse.header('content-type'));
+  87 |     expect(contentType).toContain('application/json');
+  88 |   });
+  89 | 
+  90 | });
+  91 | 
+```

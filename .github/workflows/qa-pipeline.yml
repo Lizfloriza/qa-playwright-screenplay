@@ -10,7 +10,7 @@ on:
 
 env:
   NODE_VERSION: '22'
-  BASE_URL: 'https://reqres.in'
+  BASE_URL: 'https://jsonplaceholder.typicode.com'
 
 jobs:
 

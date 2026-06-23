@@ -3,6 +3,7 @@ import { ManageUsers } from '../../src/tasks/ManageUsers';
 import { Authenticate } from '../../src/tasks/Authenticate';
 import { TheLastResponse } from '../../src/questions/TheLastResponse';
 import { TestDataBuilder } from '../../src/utils/TestDataBuilder';
+import { Send } from '../../src/interactions/Send';
 
 /**
  * REGRESSION SUITE — Critical Path
@@ -72,11 +73,17 @@ test.describe('Critical Path — User Lifecycle', () => {
     // Total users must be consistent across pages
     expect(totalFromPage1).toBe(totalFromPage2);
   });
-
+    test('should update a user and return 200', async ({ qaActor }) => {
+      await qaActor.attemptsTo( Send.PUT().to('/api/users/1').withBody({ name: 'Flori', job: 'QA Automation' }),
+          );
+      const status = await qaActor.asks(TheLastResponse.status());
+      const name = await qaActor.asks(TheLastResponse.bodyField<string>('name'));
+      expect(status).toBe(200);
+      expect(name).toBe('Flori');
+    });
   test('API returns correct content-type header', async ({ qaActor }) => {
     await qaActor.attemptsTo(ManageUsers.getPage(1));
     const contentType = await qaActor.asks(TheLastResponse.header('content-type'));
     expect(contentType).toContain('application/json');
   });
-
 });

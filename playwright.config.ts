@@ -28,7 +28,8 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: process.env.BASE_URL ?? 'https://reqres.in',
+   // baseURL: process.env.BASE_URL ?? 'https://reqres.in',
+    baseURL: process.env.BASE_URL ?? 'https://jsonplaceholder.typicode.com',
     timeout: QUALITY_GATES.timeout,
     navigationTimeout: QUALITY_GATES.navigationTimeout,
     trace: 'on-first-retry',
