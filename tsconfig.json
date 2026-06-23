@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "lib": ["ES2022"],
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "rootDir": "./",
+    "baseUrl": ".",
+    "paths": {
+      "@abilities/*": ["src/abilities/*"],
+      "@actors/*": ["src/actors/*"],
+      "@interactions/*": ["src/interactions/*"],
+      "@questions/*": ["src/questions/*"],
+      "@tasks/*": ["src/tasks/*"],
+      "@models/*": ["src/models/*"],
+      "@utils/*": ["src/utils/*"]
+    }
+  },
+  "include": ["src/**/*", "tests/**/*", "config/**/*"],
+  "exclude": ["node_modules", "dist", "reports"]
+}
