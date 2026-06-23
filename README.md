@@ -91,7 +91,7 @@ qa-playwright-screenplay/
 ### Installation
 
 ```bash
-git clone https://github.com/YOUR_USER/qa-playwright-screenplay.git
+git clone https://github.com/Lizfloriza/qa-playwright-screenplay.git
 cd qa-playwright-screenplay
 
 npm install
