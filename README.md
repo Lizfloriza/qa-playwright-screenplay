@@ -1,6 +1,6 @@
 # QA Automation Framework — Playwright + Screenplay Pattern
 
-[![QA Pipeline](https://img.shields.io/github/actions/workflow/status/YOUR_USER/qa-playwright-screenplay/qa-pipeline.yml?label=QA%20Pipeline&logo=github)](https://github.com/YOUR_USER/qa-playwright-screenplay/actions)
+[![QA Pipeline](https://img.shields.io/github/actions/workflow/status/Lizfloriza/qa-playwright-screenplay/qa-pipeline.yml?label=QA%20Pipeline&logo=github)](https://github.com/Lizfloriza/qa-playwright-screenplay/actions)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Playwright](https://img.shields.io/badge/Playwright-1.44-green?logo=playwright)](https://playwright.dev/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
