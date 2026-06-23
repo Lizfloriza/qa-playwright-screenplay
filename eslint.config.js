@@ -1,4 +1,3 @@
-cat > eslint.config.js << 'EOF'
 module.exports = {
   parser: '@typescript-eslint/parser',
   plugins: ['@typescript-eslint'],
@@ -17,4 +16,3 @@ module.exports = {
     'no-undef': 'off',
   },
 };
-EOF
