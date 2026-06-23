@@ -33,12 +33,12 @@ export class Actor {
     return this;
   }
 
-
   ability<T extends Ability>(abilityClass: { abilityName: string }): T {
     const ability = this.abilities.get(abilityClass.abilityName);
     if (!ability) {
       throw new Error(
-          `Actor "${this.name}" does not have the ability "${abilityClass.abilityName}".`
+        `Actor "${this.name}" does not have the ability "${abilityClass.abilityName}". ` +
+        `Did you call .whoCan(${abilityClass.abilityName})?`
       );
     }
     return ability as T;
