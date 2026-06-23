@@ -6,22 +6,14 @@ on:
   pull_request:
     branches: [main, develop]
   schedule:
-    - cron: '0 6 * * 1-5'   # Lunes a viernes 6am — regression diaria
+    - cron: '0 6 * * 1-5'
 
 env:
   NODE_VERSION: '22'
   BASE_URL: 'https://reqres.in'
 
-# ─── Quality Gates ─────────────────────────────────────────────────────────────
-# - 100% pass rate en tests de API y Regression
-# - TypeScript sin errores de tipo (tsc --noEmit)
-# - ESLint sin errores
-# - Allure report publicado en cada run
-# ───────────────────────────────────────────────────────────────────────────────
-
 jobs:
 
-  # ── Job 1: Static analysis ────────────────────────────────────────────────
   lint-and-typecheck:
     name: Lint & TypeCheck
     runs-on: ubuntu-latest
@@ -36,7 +28,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: TypeScript check
         run: npm run typecheck
@@ -44,12 +36,10 @@ jobs:
       - name: ESLint
         run: npm run lint
 
-  # ── Job 2: API Tests ──────────────────────────────────────────────────────
   api-tests:
     name: API Tests
     runs-on: ubuntu-latest
     needs: lint-and-typecheck
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -61,7 +51,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -82,12 +72,10 @@ jobs:
             reports/test-results.json
           retention-days: 30
 
-  # ── Job 3: Regression Suite ───────────────────────────────────────────────
   regression:
     name: Regression Suite
     runs-on: ubuntu-latest
     needs: api-tests
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -99,7 +87,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
@@ -118,13 +106,11 @@ jobs:
           path: reports/allure-results/
           retention-days: 30
 
-  # ── Job 4: Quality Gate Evaluation ───────────────────────────────────────
   quality-gate:
     name: Quality Gate
     runs-on: ubuntu-latest
     needs: [api-tests, regression]
     if: always()
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -138,17 +124,13 @@ jobs:
       - name: Evaluate quality gate
         run: |
           echo "=== QUALITY GATE EVALUATION ==="
-          
           if [ -f "reports/test-results.json" ]; then
             TOTAL=$(cat reports/test-results.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('stats',{}).get('expected',0))" 2>/dev/null || echo "0")
             FAILED=$(cat reports/test-results.json | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('stats',{}).get('unexpected',0))" 2>/dev/null || echo "0")
-            
             echo "Total tests : $TOTAL"
             echo "Failed tests: $FAILED"
-            
             if [ "$FAILED" -gt "0" ]; then
               echo "❌ QUALITY GATE FAILED — $FAILED test(s) failed"
-              echo "Policy: Zero tolerance for failures on main/develop"
               exit 1
             else
               echo "✅ QUALITY GATE PASSED — All tests passed"
@@ -158,7 +140,6 @@ jobs:
             exit 1
           fi
 
-  # ── Job 5: Publish Allure Report ─────────────────────────────────────────
   publish-report:
     name: Publish Allure Report
     runs-on: ubuntu-latest
@@ -166,7 +147,6 @@ jobs:
     if: always() && github.ref == 'refs/heads/main'
     permissions:
       contents: write
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
