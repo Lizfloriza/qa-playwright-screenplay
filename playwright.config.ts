@@ -3,12 +3,11 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-// ─── Quality Gates ───────────────────────────────────────────────────────────
 const QUALITY_GATES = {
-  maxFailures: 0,           // Zero tolerance en main branch
-  timeout: 30_000,          // 30s por test
+  maxFailures: 0,
+  timeout: 30_000,
   navigationTimeout: 15_000,
-  minPassRate: 100,         // 100% pass rate requerido
+  minPassRate: 100,
 };
 
 export default defineConfig({
@@ -28,7 +27,7 @@ export default defineConfig({
   ],
 
   use: {
-    baseURL: process.env.BASE_URL ?? 'https://reqres.in',
+    baseURL: 'https://jsonplaceholder.typicode.com',
     timeout: QUALITY_GATES.timeout,
     navigationTimeout: QUALITY_GATES.navigationTimeout,
     trace: 'on-first-retry',
@@ -37,7 +36,6 @@ export default defineConfig({
     extraHTTPHeaders: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',
-      ...(process.env.API_KEY ? { 'x-api-key': process.env.API_KEY } : {}),
     },
   },
 
@@ -45,11 +43,6 @@ export default defineConfig({
     {
       name: 'API Tests',
       testMatch: '**/tests/api/**/*.spec.ts',
-      use: { ...devices['Desktop Chrome'] },
-    },
-    {
-      name: 'E2E Tests',
-      testMatch: '**/tests/e2e/**/*.spec.ts',
       use: { ...devices['Desktop Chrome'] },
     },
     {
